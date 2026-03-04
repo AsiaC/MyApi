@@ -1,41 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyApi.Data;
+using MyApi.Dtos;
 using MyApi.Enums;
 using MyApi.Models;
 
 namespace MyApi.Services
 {
     public class FlashcardService(AppDbContext context) : IFlashcardService
-    {
-        static List<Flashcard> flashcards = new List<Flashcard>
-        {
-            new() {
-                Id = 1,
-                Polish = "zmartwienie",
-                English = "concern",
-                IsCompleted = false,
-                LastTouch = null,
-                Repetition = RepetitionEnum.None,
-                WasLastTouchSuccessful = false
-            },
-            new() {
-                Id = 2,
-                Polish = "dostarczac",
-                English = "provide",
-                IsCompleted = false,
-                LastTouch = null,
-                Repetition = RepetitionEnum.None,
-                WasLastTouchSuccessful = false
-            },
-            new() {
-                Id = 3,
-                Polish = "rozwiązac",
-                English = "sort out",
-                IsCompleted = false,
-                LastTouch = null,
-                Repetition = RepetitionEnum.None,
-                WasLastTouchSuccessful = false }
-        };
+    {        
         public Task<Flashcard> CreateFlashCard(Flashcard flashcard)
         {
             throw new NotImplementedException();
@@ -46,16 +18,27 @@ namespace MyApi.Services
             throw new NotImplementedException();
         }
 
-        public async Task<Flashcard?> GetFlashCardByIdAsync(int id)
+        public async Task<FlashcardResponse?> GetFlashCardByIdAsync(int id)
         {
-            var result = await context.Flashcards.FindAsync(id);
+            var result = await context.Flashcards
+                .Where(f=>f.Id == id)
+                .Select(f => new FlashcardResponse
+                {
+                    Polish = f.Polish,
+                    English = f.English
+                }).FirstOrDefaultAsync();
+
             return result;
         }
 
-        public async Task<List<Flashcard>> GetFlashCardsAsync()
-            => await context.Flashcards.ToListAsync();
+        public async Task<List<FlashcardResponse>> GetFlashCardsAsync()
+            => await context.Flashcards.Select(f => new FlashcardResponse
+            {
+                Polish = f.Polish,
+                English = f.English
+            }).ToListAsync();
 
-        public Task<List<Flashcard>> GetFlashCardsByRepetition(RepetitionEnum repetitionEnum)
+        public Task<List<FlashcardResponse>> GetFlashCardsByRepetition(RepetitionEnum repetitionEnum)
         {
             throw new NotImplementedException();
         }
