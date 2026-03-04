@@ -1,9 +1,11 @@
-﻿using MyApi.Enums;
+﻿using Microsoft.EntityFrameworkCore;
+using MyApi.Data;
+using MyApi.Enums;
 using MyApi.Models;
 
 namespace MyApi.Services
 {
-    public class FlashcardService : IFlashcardService
+    public class FlashcardService(AppDbContext context) : IFlashcardService
     {
         static List<Flashcard> flashcards = new List<Flashcard>
         {
@@ -46,12 +48,12 @@ namespace MyApi.Services
 
         public async Task<Flashcard?> GetFlashCardByIdAsync(int id)
         {
-            var result = flashcards.FirstOrDefault(x => x.Id == id);
-            return await Task.FromResult(result);
+            var result = await context.Flashcards.FindAsync(id);
+            return result;
         }
 
         public async Task<List<Flashcard>> GetFlashCardsAsync()
-            => await Task.FromResult(flashcards);
+            => await context.Flashcards.ToListAsync();
 
         public Task<List<Flashcard>> GetFlashCardsByRepetition(RepetitionEnum repetitionEnum)
         {
